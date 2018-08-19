@@ -17,7 +17,13 @@ type Route struct {
 //Routes defines the list of routes of our API
 type Routes []Route
 
-var routes = Routes{}
+var routes = Routes{
+	Route{
+		"ConnectFriends",
+		"POST",
+		"/friend/connect",
+		ConnectFriends,
+	}}
 
 //NewRouter configures a new router to the API
 func NewRouter() *mux.Router {
