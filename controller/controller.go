@@ -83,3 +83,34 @@ func ConnectFriends(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 
 }
+
+func friendList(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	req := &model.FriendListRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		log.Printf("Error decoding body: %s", err)
+		response := &model.FriendListResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	user, err := UserRepo.GetUser(req.Email)
+
+	// If err, return
+	if err != nil {
+		log.Printf("Error QueryA: %s", req.Email)
+		response := &model.FriendListResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	response := &model.FriendListResponse{}
+	response.Success = true
+	response.Friends = user.Friends
+	response.Count = len(user.Friends)
+
+	json.NewEncoder(w).Encode(response)
+
+}

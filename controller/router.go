@@ -23,6 +23,12 @@ var routes = Routes{
 		"POST",
 		"/friend/connect",
 		ConnectFriends,
+	},
+	Route{
+		"FriendList",
+		"POST",
+		"/friend/list",
+		friendList,
 	}}
 
 //NewRouter configures a new router to the API
