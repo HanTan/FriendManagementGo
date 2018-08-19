@@ -114,3 +114,45 @@ func friendList(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 
 }
+
+func commonFriends(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	req := &model.CommonFriendRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		log.Printf("Error decoding body: %s", err)
+		response := &model.BasicResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	// Read the user struct BoltDB
+	userA, errA := UserRepo.GetUser(req.Friends[0])
+	userB, errB := UserRepo.GetUser(req.Friends[1])
+
+	// If err, return
+	if errA != nil || errB != nil {
+		log.Printf("Error QueryA: %s", errA)
+		log.Printf("Error QueryB: %s", errB)
+		response := &model.BasicResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	Commons := []string{}
+	for _, a := range userA.Friends {
+		for _, b := range userB.Friends {
+			if a == b {
+				Commons = append(Commons, a)
+			}
+		}
+	}
+
+	response := &model.FriendListResponse{}
+	response.Success = true
+	response.Friends = Commons
+	response.Count = len(Commons)
+	json.NewEncoder(w).Encode(response)
+}
