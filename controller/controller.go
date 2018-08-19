@@ -1,9 +1,12 @@
 package controller
 
 import (
+	"friend-management/repository"
 	"log"
 	"net/http"
 )
+
+var UserRepo repository.IRepository
 
 func StartWebServer(port string) {
 
