@@ -50,6 +50,17 @@ func ConnectFriends(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var bBlocked bool = util.Contains(userA.Blocked, userB.Email)
+	var aBlocked bool = util.Contains(userB.Blocked, userA.Email)
+
+	if aBlocked || bBlocked {
+		response := &model.BasicResponse{}
+		response.Success = false
+
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
 	//Add Friend
 	var bISaFriend bool = util.Contains(userA.Friends, userB.Email)
 	if !bISaFriend {
@@ -198,4 +209,50 @@ func subscribeFriend(w http.ResponseWriter, r *http.Request) {
 	response := &model.BasicResponse{}
 	response.Success = true
 	json.NewEncoder(w).Encode(response)
+}
+
+func blockFriend(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	req := &model.SubscriptionRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		log.Printf("Error decoding body: %s", err)
+		response := &model.BasicResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	// Read the user struct BoltDB
+	requestor, errA := UserRepo.GetUser(req.Requestor)
+
+	// If err, return
+	if errA != nil {
+		log.Printf("Error QueryA: %s", requestor)
+		response := &model.BasicResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	//Block Friend
+	var bIsBlocked bool = false
+	for _, u := range requestor.Blocked {
+		if u == req.Target {
+			bIsBlocked = true
+		}
+	}
+
+	if !bIsBlocked {
+		requestor.Blocked = append(requestor.Blocked, req.Target)
+		log.Printf("B added to A Blocked's")
+	}
+
+	UserRepo.UpdateUser(requestor)
+
+	response := &model.BasicResponse{}
+	response.Success = true
+	json.NewEncoder(w).Encode(response)
+
 }
