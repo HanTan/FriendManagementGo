@@ -156,3 +156,46 @@ func commonFriends(w http.ResponseWriter, r *http.Request) {
 	response.Count = len(Commons)
 	json.NewEncoder(w).Encode(response)
 }
+
+func subscribeFriend(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	req := &model.SubscriptionRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		log.Printf("Error decoding body: %s", err)
+		response := &model.BasicResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	// Read the user struct BoltDB
+	requestor, errA := UserRepo.GetUser(req.Requestor)
+
+	// If err, return
+	if errA != nil {
+		log.Printf("Error QueryA: %s", requestor)
+		response := &model.BasicResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	//Subscribe Friend
+	var bIsSubscriber bool = false
+	for _, u := range requestor.Subscription {
+		if u == req.Target {
+			bIsSubscriber = true
+		}
+	}
+
+	if !bIsSubscriber {
+		requestor.Subscription = append(requestor.Subscription, req.Target)
+		log.Printf("B added to A Subscription's")
+	}
+
+	UserRepo.UpdateUser(requestor)
+
+	response := &model.BasicResponse{}
+	response.Success = true
+	json.NewEncoder(w).Encode(response)
+}

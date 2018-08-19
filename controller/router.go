@@ -35,6 +35,12 @@ var routes = Routes{
 		"POST",
 		"/friend/common",
 		commonFriends,
+	},
+	Route{
+		"SubscribeFriend",
+		"POST",
+		"/friend/subscribe",
+		subscribeFriend,
 	}}
 
 //NewRouter configures a new router to the API

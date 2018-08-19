@@ -27,3 +27,8 @@ type FriendListResponse struct {
 type CommonFriendRequest struct {
 	Friends []string `json:"friends"`
 }
+
+type SubscriptionRequest struct {
+	Requestor string `json:"requestor"`
+	Target    string `json:"target"`
+}
