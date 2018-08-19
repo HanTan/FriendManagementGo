@@ -32,3 +32,13 @@ type SubscriptionRequest struct {
 	Requestor string `json:"requestor"`
 	Target    string `json:"target"`
 }
+
+type SendUpdateRequest struct {
+	Sender string `json:"sender"`
+	Text   string `json:"text"`
+}
+
+type SendUpdateResponse struct {
+	Success    bool     `json:"success"`
+	Recipients []string `json:"recipients"`
+}

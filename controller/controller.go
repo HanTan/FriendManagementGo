@@ -7,6 +7,7 @@ import (
 	"friend-management/util"
 	"log"
 	"net/http"
+	"strings"
 )
 
 var UserRepo repository.IRepository
@@ -253,6 +254,61 @@ func blockFriend(w http.ResponseWriter, r *http.Request) {
 
 	response := &model.BasicResponse{}
 	response.Success = true
+	json.NewEncoder(w).Encode(response)
+
+}
+
+func sendUpdate(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	req := &model.SendUpdateRequest{}
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		log.Printf("Error decoding body: %s", err)
+		response := &model.SendUpdateResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	user, errA := UserRepo.GetUser(req.Sender)
+
+	if errA != nil {
+		log.Printf("Error QueryA: %s", user)
+		response := &model.SendUpdateResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	Recipients := []string{}
+
+	allUser, err := UserRepo.GetAllUser()
+
+	if err != nil {
+		log.Printf("Error Get all")
+		response := &model.SendUpdateResponse{}
+		response.Success = false
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	for _, u := range allUser {
+		var isBlocked bool = util.Contains(u.Blocked, user.Email)
+		if !isBlocked {
+			var isFriend bool = util.Contains(u.Friends, user.Email)
+			var isSubscriber bool = util.Contains(u.Subscription, user.Email)
+			var isMentioned bool = strings.Contains(req.Text, u.Email)
+
+			if isFriend || isSubscriber || isMentioned {
+				Recipients = append(Recipients, u.Email)
+			}
+		}
+	}
+
+	response := &model.SendUpdateResponse{}
+	response.Success = true
+	response.Recipients = Recipients
 	json.NewEncoder(w).Encode(response)
 
 }

@@ -47,6 +47,12 @@ var routes = Routes{
 		"POST",
 		"/friend/block",
 		blockFriend,
+	},
+	Route{
+		"SendUpdate",
+		"POST",
+		"/friend/send",
+		sendUpdate,
 	}}
 
 //NewRouter configures a new router to the API
