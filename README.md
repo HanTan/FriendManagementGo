@@ -30,3 +30,53 @@ Available users will be:
 - User7@hans.com
 
 Access services using Postman / curl
+
+with hostname : http://friend-management-hantan.c9users.io:8080/friend/
+
+and request payload:
+- /connect
+```json
+{
+  "friends":
+    [
+      "User1@hans.com",
+      "User3@hans.com"
+    ]
+}
+```
+- /list
+```json
+{
+  "email": "User1@hans.com"
+}
+```
+- /common
+```json
+{
+  "friends": [
+     "User2@hans.com",
+      "User3@hans.com"
+      ]
+}
+```
+- /subscribe
+```json
+{
+  "requestor": "User2@hans.com",
+  "target": "User3@hans.com"
+}
+```
+- /block
+```json
+{
+  "requestor": "User3@hans.com",
+  "target": "User1@hans.com"
+}
+```
+- /send
+```json
+{
+  "sender": "User1@hans.com",
+  "text": "Hi! User4@hans.com"
+}
+```
